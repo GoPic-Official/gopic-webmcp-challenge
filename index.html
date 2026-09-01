@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="description" content="GoPic for Agents — turn a real-world sign into a grounded place using WebMCP.">
+  <title>GoPic for Agents — WebMCP Challenge</title>
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+  <!-- Simple, reliable native HTML5 video. No intro JavaScript. -->
+  <section class="simple-intro" aria-label="GoPic cinematic intro"
+    style="width:100%;background:#000;overflow:hidden;">
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      poster="/assets/images/hawk-eye-poster.png"
+      style="display:block;width:100%;height:auto;max-height:100vh;object-fit:cover;margin:0 auto;background:#000;"
+    >
+      <source src="/assets/video/intro.mp4?v=20260901-1" type="video/mp4">
+      Your browser does not support HTML5 video.
+    </video>
+  </section>
+
+  <main id="app">
+    <header class="topbar">
+      <a class="brand" href="#hero" aria-label="GoPic for Agents home">
+        <span class="brand-dot"></span>
+        <span>GoPic <b>for Agents</b></span>
+      </a>
+      <nav>
+        <a href="#demo">Live demo</a>
+        <a href="#webmcp">WebMCP</a>
+        <a href="#impact">Why it matters</a>
+        <a href="#challenge">Challenge fit</a>
+      </nav>
+      <span class="status" id="mcpStatus"><i></i> Checking WebMCP</span>
+    </header>
+
+    <section class="hero" id="hero">
+      <div class="eyebrow">OPENAI WEBMCP CHALLENGE · 2026</div>
+      <h1>See the sign.<br><span>Find the real place.</span></h1>
+      <p class="lead">
+        A photo gives an agent visual evidence. GoPic turns that evidence into
+        grounded place candidates — then exposes the workflow as WebMCP tools.
+      </p>
+      <div class="hero-actions">
+        <a class="primary" href="#demo">Try the sign demo</a>
+        <a class="secondary" href="#webmcp">See the agent tools</a>
+      </div>
+      <div class="problem-strip">
+        <span>OCR alone can read text.</span>
+        <strong>GoPic asks the harder question:</strong>
+        <span>Which real place is it?</span>
+      </div>
+    </section>
+
+    <section class="demo-section" id="demo">
+      <div class="section-copy">
+        <div class="eyebrow">HUMAN + AGENT</div>
+        <h2>One photo starts the collaboration.</h2>
+        <p>
+          The human supplies the visual clue. The agent can use GoPic's registered
+          WebMCP tools to inspect the current sign, analyze it, compare candidates,
+          and return a grounded place result.
+        </p>
+      </div>
+
+      <div class="demo-grid">
+        <article class="upload-card">
+          <div class="card-head">
+            <span>01</span>
+            <div>
+              <b>Give GoPic a sign</b>
+              <small>Human input</small>
+            </div>
+          </div>
+
+          <label class="dropzone" id="dropzone" for="signFile">
+            <input id="signFile" type="file" accept="image/*">
+            <img id="preview" alt="" hidden>
+            <div id="dropPrompt">
+              <div class="scan-icon">⌁</div>
+              <b>Drop a storefront or sign photo</b>
+              <span>or click to choose an image</span>
+            </div>
+            <div class="scan-line" aria-hidden="true"></div>
+          </label>
+
+          <label class="field">
+            <span>Location hint <em>optional</em></span>
+            <input id="locationHint" autocomplete="off"
+              placeholder="e.g. Ho Chi Minh City, Vietnam">
+          </label>
+
+          <button class="analyze" id="analyzeButton" type="button">Analyze with GoPic</button>
+          <p class="micro">
+            The UI is intentionally human-friendly. The same workflow is exposed to
+            compatible agents through WebMCP.
+          </p>
+        </article>
+
+        <article class="result-card" aria-live="polite">
+          <div class="card-head">
+            <span>02</span>
+            <div>
+              <b>Ground the visual clue</b>
+              <small>GoPic + agent workflow</small>
+            </div>
+          </div>
+
+          <div class="pipeline" id="pipeline">
+            <div class="stage" data-stage="vision">
+              <i></i><span>Visual input</span><strong id="visualState">Waiting</strong>
+            </div>
+            <div class="stage" data-stage="ocr">
+              <i></i><span>Detected sign text</span><strong id="ocrText">—</strong>
+            </div>
+            <div class="stage" data-stage="place">
+              <i></i><span>Place candidates</span><strong id="candidateCount">—</strong>
+            </div>
+            <div class="stage" data-stage="verify">
+              <i></i><span>Grounded result</span><strong id="verifiedPlace">—</strong>
+            </div>
+          </div>
+
+          <div class="candidate-list" id="candidateList">
+            <div class="empty-result">
+              Upload a sign to start. WebMCP agents can invoke the same workflow.
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="webmcp-section" id="webmcp">
+      <div class="section-copy centered">
+        <div class="eyebrow">WEBMCP LEVERAGE</div>
+        <h2>The website becomes an agent tool surface.</h2>
+        <p>
+          Instead of asking an agent to guess where to click, GoPic registers
+          structured actions directly with <code>document.modelContext</code>.
+        </p>
+      </div>
+
+      <div class="tools">
+        <article>
+          <div class="tool-top"><span>TOOL 01</span><b>gopic_get_sign_context</b></div>
+          <p>Read the current human-provided photo context and location hint.</p>
+          <code>read-only · current page state</code>
+        </article>
+        <article>
+          <div class="tool-top"><span>TOOL 02</span><b>gopic_analyze_sign</b></div>
+          <p>Run the GoPic sign-analysis workflow and return structured findings.</p>
+          <code>vision → OCR → candidate grounding</code>
+        </article>
+        <article>
+          <div class="tool-top"><span>TOOL 03</span><b>gopic_get_place_candidates</b></div>
+          <p>Inspect candidate places and the evidence used to distinguish namesakes.</p>
+          <code>read-only · grounded candidates</code>
+        </article>
+      </div>
+      <div class="mcp-note" id="mcpNote">
+        WebMCP availability is detected at runtime. The page remains usable by humans
+        even when the experimental browser API is unavailable.
+      </div>
+    </section>
+
+    <section class="impact" id="impact">
+      <div>
+        <div class="eyebrow">POTENTIAL IMPACT</div>
+        <h2>Reading a sign is not the same as finding the place.</h2>
+      </div>
+      <div class="impact-grid">
+        <article><b>Same-name businesses</b><p>Text alone can point to the wrong business. GoPic keeps location and candidate evidence in the loop.</p></article>
+        <article><b>Unfamiliar scripts</b><p>Travelers should not need to type characters they cannot read just to find reviews or place information.</p></article>
+        <article><b>Human intent + agent speed</b><p>The human chooses what matters in the physical world; the agent handles the structured web workflow.</p></article>
+      </div>
+    </section>
+
+    <section class="challenge" id="challenge">
+      <div class="section-copy centered">
+        <div class="eyebrow">BUILT FOR THE JUDGING CRITERIA</div>
+        <h2>Not a WebMCP checkbox. A complete product story.</h2>
+      </div>
+      <div class="criteria">
+        <article><span>01</span><b>WebMCP Leverage</b><p>Real registered tools expose a non-trivial visual-to-place workflow.</p></article>
+        <article><span>02</span><b>Execution</b><p>One coherent web experience for both humans and compatible AI agents.</p></article>
+        <article><span>03</span><b>Potential Impact</b><p>A concrete travel problem: turning an unfamiliar real-world sign into the correct place.</p></article>
+        <article><span>04</span><b>Creativity & Ambition</b><p>Bridge the physical world and the open web through a visual agent interface.</p></article>
+      </div>
+    </section>
+
+    <section class="before-after">
+      <div>
+        <span>BEFORE WEBMCP</span>
+        <p>GoPic already explored visual sign recognition and place search as a mobile product.</p>
+      </div>
+      <div class="arrow">→</div>
+      <div>
+        <span>NEW FOR THIS CHALLENGE</span>
+        <p>GoPic exposes the sign-to-place workflow directly to web agents through WebMCP tools.</p>
+      </div>
+    </section>
+
+    <footer>
+      <div><b>GoPic for Agents</b><span>WebMCP Challenge prototype</span></div>
+      <a href="https://gopic.app" rel="noreferrer">GoPic product site ↗</a>
+    </footer>
+  </main>
+
+
+  <script>
+  (() => {
+    const fileInput = document.getElementById('signFile');
+    const dropzone = document.getElementById('dropzone');
+    const preview = document.getElementById('preview');
+    const dropPrompt = document.getElementById('dropPrompt');
+    const analyzeButton = document.getElementById('analyzeButton');
+
+    window.GoPicDemo = {
+      file: null,
+      fileName: null,
+      locationHint: '',
+      analyzed: false,
+      ocrText: '',
+      candidates: [],
+      verifiedPlace: ''
+    };
+
+    function setStage(stage, value) {
+      const el = document.querySelector(`[data-stage="${stage}"]`);
+      if (el) el.classList.add('done');
+      const map = {
+        vision: 'visualState',
+        ocr: 'ocrText',
+        place: 'candidateCount',
+        verify: 'verifiedPlace'
+      };
+      const target = document.getElementById(map[stage]);
+      if (target) target.textContent = value;
+    }
+
+    function escapeHtml(s='') {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      }[c]));
+    }
+
+    function renderCandidates(items) {
+      const box = document.getElementById('candidateList');
+      if (!box) return;
+      if (!items.length) {
+        box.innerHTML = '<div class="empty-result">No candidates yet.</div>';
+        return;
+      }
+      box.innerHTML = items.map((x, i) => `
+        <div class="candidate ${i === 0 ? 'top' : ''}">
+          <b>${escapeHtml(x.name)}</b>
+          <span>${escapeHtml(x.location || 'Location unavailable')}</span>
+          <small>${escapeHtml(x.reason || '')}</small>
+        </div>`).join('');
+    }
+
+    async function prepareImageForAnalysis(file) {
+      const MAX_SIDE = 1400;
+      const JPEG_QUALITY = 0.85;
+
+      if (!file || !file.type.startsWith('image/')) return file;
+
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+
+      if (scale === 1 && file.type === 'image/jpeg' && file.size < 900 * 1024) {
+        bitmap.close();
+        return file;
+      }
+
+      const width = Math.max(1, Math.round(bitmap.width * scale));
+      const height = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      bitmap.close();
+
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(
+          b => b ? resolve(b) : reject(new Error('Image compression failed')),
+          'image/jpeg',
+          JPEG_QUALITY
+        );
+      });
+
+      const baseName = file.name.replace(/\.[^.]+$/, '');
+      return new File([blob], `${baseName}-web.jpg`, {
+        type: 'image/jpeg',
+        lastModified: Date.now()
+      });
+    }
+
+    fileInput?.addEventListener('change', async () => {
+      const original = fileInput.files?.[0];
+      if (!original) return;
+
+      preview.src = URL.createObjectURL(original);
+      preview.hidden = false;
+      dropPrompt.hidden = true;
+      dropzone.classList.add('has-image');
+
+      setStage('vision', 'Optimizing image…');
+
+      try {
+        const prepared = await prepareImageForAnalysis(original);
+        window.GoPicDemo.file = prepared;
+        window.GoPicDemo.fileName = original.name;
+
+        const kb = Math.max(1, Math.round(prepared.size / 1024));
+        setStage('vision', `${original.name} · ${kb} KB`);
+      } catch (err) {
+        window.GoPicDemo.file = original;
+        window.GoPicDemo.fileName = original.name;
+        setStage('vision', original.name);
+      }
+    });
+
+    analyzeButton?.addEventListener('click', async () => {
+      const file = window.GoPicDemo.file;
+      if (!file) {
+        fileInput.click();
+        return;
+      }
+
+      window.GoPicDemo.locationHint =
+        document.getElementById('locationHint')?.value?.trim() || '';
+
+      analyzeButton.disabled = true;
+      analyzeButton.textContent = 'Reading sign…';
+      dropzone.classList.add('scanning');
+
+      const ocrTarget = document.getElementById('ocrText');
+      const candidateTarget = document.getElementById('candidateCount');
+      const verifiedTarget = document.getElementById('verifiedPlace');
+      if (ocrTarget) ocrTarget.textContent = 'Reading…';
+      if (candidateTarget) candidateTarget.textContent = 'Matching…';
+      if (verifiedTarget) verifiedTarget.textContent = 'Verifying…';
+
+      try {
+        const result = await window.GoPicAnalyzeCurrentSign?.();
+        if (!result) throw new Error('Analyzer unavailable');
+
+        window.GoPicDemo.analyzed = true;
+        window.GoPicDemo.ocrText = result.ocrText || '—';
+        window.GoPicDemo.candidates = result.candidates || [];
+        window.GoPicDemo.verifiedPlace =
+          result.verifiedPlace || 'Needs verification';
+
+        setStage('ocr', window.GoPicDemo.ocrText);
+        setStage('place', `${window.GoPicDemo.candidates.length} candidates`);
+        setStage('verify', window.GoPicDemo.verifiedPlace);
+        renderCandidates(window.GoPicDemo.candidates);
+      } catch (err) {
+        const box = document.getElementById('candidateList');
+        if (box) {
+          box.innerHTML =
+            '<div class="empty-result">Analysis endpoint is not connected yet. The WebMCP/UI shell is ready for the GoPic OCR/place bridge.</div>';
+        }
+      } finally {
+        analyzeButton.disabled = false;
+        analyzeButton.textContent = 'Analyze with GoPic';
+        dropzone.classList.remove('scanning');
+      }
+    });
+  })();
+  </script>
+
+  <script src="/webmcp/tools.js"></script>
+</body>
+</html>
