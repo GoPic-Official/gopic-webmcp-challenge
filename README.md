@@ -63,6 +63,7 @@ The production GoPic mobile application source is private and is not included he
 - index.html
 - assets/css/app.css
 - api/analyze.php
+- webmcp/tools.js
 - README.md
 - LICENSE
 
