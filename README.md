@@ -62,7 +62,6 @@ The production GoPic mobile application source is private and is not included he
 
 - index.html
 - assets/css/app.css
-- api/analyze.php
 - webmcp/tools.js
 - README.md
 - LICENSE
@@ -71,8 +70,9 @@ The production GoPic mobile application source is private and is not included he
 
 API credentials are not committed to this repository.
 
-The live Gemini API key is stored outside the public web root.
+The live Gemini API key is stored only as a Supabase Edge Function secret and is never exposed to the browser or committed to this repository.
 
 ## License
 
 MIT License.
+
