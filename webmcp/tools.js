@@ -12,7 +12,7 @@
     form.append('image', state.file);
     form.append('locationHint', state.locationHint || '');
 
-    const response = await fetch('/api/analyze.php', {
+    const response = await fetch('https://sbsubzdbrobmbflekyun.supabase.co/functions/v1/webmcp-analyze-sign', {
       method: 'POST',
       body: form
     });
@@ -111,3 +111,4 @@
     note.textContent = `Tool registration failed: ${err.message}`;
   });
 })();
+
